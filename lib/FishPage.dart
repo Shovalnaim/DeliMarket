@@ -1,21 +1,21 @@
-import 'package:badges/badges.dart' as badges;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:provider/provider.dart';
 import 'GroceryItem.dart';
 import 'cart.dart';
 import 'cart_page.dart';
 
-class BreadPage extends StatelessWidget {
-  static const String id = "bread";
+class FishPage extends StatelessWidget {
+  static const String id = "fish";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.brown,
+      backgroundColor: Color(0XFF14638C),
       appBar: AppBar(
         title: Text(
-          "Bread Page",
+          "Fish Page",
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -25,8 +25,7 @@ class BreadPage extends StatelessWidget {
             padding: EdgeInsets.only(right: 5, left: 5, top: 5),
             margin: EdgeInsets.all(10),
             decoration: BoxDecoration(
-                color: Color(0xffD59462),
-                //color: Colors.grey,
+                color: Color(0XFF5F94EE),
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
@@ -58,7 +57,7 @@ class BreadPage extends StatelessWidget {
             children: [
               Expanded(child: Consumer<Cart>(builder: (context, value, child) {
                 return GridView.builder(
-                  itemCount: value.bread.length,
+                  itemCount: value.fish.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
@@ -67,19 +66,19 @@ class BreadPage extends StatelessWidget {
                   ),
                   itemBuilder: (context, index) {
                     return GroceryItemTile(
-                      name: value.bread[index][0],
-                      unit: value.bread[index][1],
-                      price: value.bread[index][2],
-                      image: value.bread[index][3],
-                      listName: value.bread,
+                      name: value.fish[index][0],
+                      unit: value.fish[index][1],
+                      price: value.fish[index][2],
+                      image: value.fish[index][3],
+                      listName: value.fish,
                       // onPressed: () {
                       //   Provider.of<Cart>(context, listen: false)
-                      //       .addItemToCart(index,);
+                      //       .addItemToCart(index);
                       // },
                       onPressed: () {
                         Provider.of<Cart>(context, listen: false).addItemToCart(
                             index,
-                            Provider.of<Cart>(context, listen: false).bread);
+                            Provider.of<Cart>(context, listen: false).fish);
                       },
                     );
                   },

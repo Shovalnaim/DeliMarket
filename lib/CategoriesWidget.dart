@@ -1,25 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:markettest/BreadPage.dart';
+import 'package:markettest/FishPage.dart';
+import 'package:markettest/Fruits.dart';
+import 'package:markettest/Meat.dart';
+import 'Condiments.dart';
+import 'Pasta.dart';
+import 'Vegetables.dart';
 
 class CategoriesWidget extends StatelessWidget {
   static const String id = "category";
 
   @override
   Widget build(BuildContext context) {
-    List<String> imageFileNames = [
-      "bread.jpeg",
-      "condiments.jpeg",
-      "fish.jpeg",
-      "fruits.jpeg",
-      "meat.jpeg",
-      "pasta.jpeg",
-      "vegetables.jpeg"
+    List<List<String>> images = [
+      ["bread","bread.jpeg",BreadPage.id],
+      ["condiments","condiments.jpeg",Condiments.id],
+      ["fish","fish.jpeg",FishPage.id],
+      ["fruits","fruits.jpeg",Fruits.id],
+      ["meat","meat.jpeg",Meat.id],
+      ["pasta","pasta.jpeg",Pasta.id],
+      ["vegetables","vegetables.jpeg",Vegetables.id]
     ];
     return Column(
       children: [
         Padding(
           padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Category",
@@ -28,13 +34,6 @@ class CategoriesWidget extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: Colors.black),
               ),
-              Text(
-                "see all",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: Colors.black),
-              )
             ],
           ),
         ),
@@ -47,7 +46,7 @@ class CategoriesWidget extends StatelessWidget {
           childAspectRatio: 0.8,
           shrinkWrap: true,
           children: [
-            for (String imageName in imageFileNames)
+            for (List<String> image in images)
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
@@ -63,18 +62,20 @@ class CategoriesWidget extends StatelessWidget {
                   children: [
                     InkWell(
                       onTap: () {
-                        Navigator.pushNamed(context, "bread");
+                        Navigator.pushNamed(context,image[2]);
+                        print("move to : "+image[2]);
                       },
                       child: Container(
                         margin: EdgeInsets.all(10),
-                        child: Image.asset("images/categories/$imageName"),
+                        child: Image.asset("images/categories/${image[1]}"),
                       ),
                     ),
                     Padding(
                       padding: EdgeInsets.only(bottom: 10),
                       child: Container(
                         child: Text(
-                          "Item Title",
+                          //"Item Title",
+                          image[0],
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16),
                         ),
@@ -90,7 +91,6 @@ class CategoriesWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-
                   ],
                 ),
               )

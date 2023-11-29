@@ -9,6 +9,7 @@ class GroceryItemTile extends StatefulWidget {
   int unit;
   final String price;
   final String image;
+  final List<List<dynamic>> listName;
   void Function()? onPressed;
 
   GroceryItemTile({
@@ -17,7 +18,8 @@ class GroceryItemTile extends StatefulWidget {
     this.unit = 0,
     required this.price,
     required this.image,
-    required this.onPressed
+    required this.listName,
+    required this.onPressed,
   });
 
   @override
@@ -31,7 +33,7 @@ class _GroceryItemTileState extends State<GroceryItemTile> {
       setState(() {
         widget.unit--;
         Provider.of<Cart>(context, listen: false)
-            .updateUnit(widget.name, widget.unit);
+            .updateUnit(widget.name, widget.unit,widget.listName);
       });
     }
   }
@@ -39,7 +41,7 @@ class _GroceryItemTileState extends State<GroceryItemTile> {
     setState(() {
       widget.unit++;
       Provider.of<Cart>(context, listen: false)
-          .updateUnit(widget.name, widget.unit);
+          .updateUnit(widget.name, widget.unit,widget.listName);
     });
   }
   @override
@@ -71,28 +73,28 @@ class _GroceryItemTileState extends State<GroceryItemTile> {
                   "\$ ${widget.price} Per Unit",
                 ),
               ),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      decrementUnit();
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        //color: Color(0xffD59462),
-                        color: Colors.brown,
-                        borderRadius: BorderRadius.circular(20),
+                  if (widget.unit > 0)  // Conditionally render based on unit value
+                    InkWell(
+                      onTap: () {
+                        decrementUnit();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.brown,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Icon(CupertinoIcons.minus),
                       ),
-                      child: Icon(CupertinoIcons.minus),
                     ),
-                  ),
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 5),
                     child: Text(
-                       "${widget.unit}",
-
+                      "${widget.unit}",
                       style: TextStyle(
                         color: Colors.brown,
                         fontSize: 20,
@@ -107,17 +109,14 @@ class _GroceryItemTileState extends State<GroceryItemTile> {
                     child: Container(
                       padding: EdgeInsets.all(2),
                       decoration: BoxDecoration(
-                        //color: Color(0xffD59462),
                         color: Colors.brown,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Icon(CupertinoIcons.plus),
                     ),
                   ),
-
                 ],
               ),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

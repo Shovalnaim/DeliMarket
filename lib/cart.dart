@@ -11,12 +11,27 @@ class Cart extends ChangeNotifier {
     ["bread7", 0, "9", "images/bread/img7.jpeg"],
     ["bread8", 0, "4.9", "images/bread/img8.jpeg"],
   ];
-
-  void updateUnit(String itemName, int newUnit) {
-    //function that resive name of product and the change of units and update the units in cart
-    final itemIndex = bread.indexWhere((item) => item[0] == itemName);
+  final List<List<dynamic>> fish = [
+    ["amnon", 0, "5", "images/fish/amnon.jpeg"],
+    ["buri", 0, "6", "images/fish/buri.jpeg"],
+    ["denis", 0, "4", "images/fish/denis.jpeg"],
+    ["solomon", 0, "7", "images/fish/salomon.jpeg"],
+    ["sardin", 0, "8", "images/fish/sardin.jpeg"],
+  ];
+  final List<List<dynamic>> condiments = [];
+  // void updateUnit(String itemName, int newUnit) {
+  //   //function that resive name of product and the change of units and update the units in cart
+  //   final itemIndex = bread.indexWhere((item) => item[0] == itemName);
+  //   if (itemIndex != -1) {
+  //     bread[itemIndex][1] = newUnit;
+  //     notifyListeners();
+  //   }
+  // }
+  void updateUnit(String itemName, int newUnit, List<List<dynamic>> itemList) {
+    // function that receives the name of the product, the change in units, and updates the units in the cart
+    final itemIndex = itemList.indexWhere((item) => item[0] == itemName);
     if (itemIndex != -1) {
-      bread[itemIndex][1] = newUnit;
+      itemList[itemIndex][1] = newUnit;
       notifyListeners();
     }
   }
@@ -24,11 +39,31 @@ class Cart extends ChangeNotifier {
   List items = [];
 
   get shop => bread;
-
+  get fh=>items;
   get buyItem => items;
 
-  void addItemToCart(int index) {
-    List<dynamic> newItem = bread[index];
+  // void addItemToCart(int index) {
+  //   List<dynamic> newItem = bread[index];
+  //   String itemName = newItem[0];
+  //
+  //   // Check if the item is already in the cart
+  //   bool itemExists = false;
+  //   for (int i = 0; i < items.length; i++) {
+  //     if (items[i][0] == itemName) {
+  //       // Item already exists, update units
+  //       updateUnit(itemName, newItem[1]);
+  //       itemExists = true;
+  //       break;
+  //     }
+  //   }
+  //   // If the item is not in the cart, add the product
+  //   if (!itemExists) {
+  //     items.add(newItem);
+  //   }
+  //   notifyListeners(); //update the list with the new changes
+  // }
+  void addItemToCart(int index, List<List<dynamic>> itemList) {
+    List<dynamic> newItem = itemList[index];
     String itemName = newItem[0];
 
     // Check if the item is already in the cart
@@ -36,7 +71,7 @@ class Cart extends ChangeNotifier {
     for (int i = 0; i < items.length; i++) {
       if (items[i][0] == itemName) {
         // Item already exists, update units
-        updateUnit(itemName, newItem[1]);
+        updateUnit(itemName, newItem[1], itemList);
         itemExists = true;
         break;
       }
@@ -45,7 +80,7 @@ class Cart extends ChangeNotifier {
     if (!itemExists) {
       items.add(newItem);
     }
-    notifyListeners(); //update the list with the new changes
+    notifyListeners(); // update the list with the new changes
   }
 
 //remove item from the cart

@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'CategoriesWidget.dart';
-import 'SideBar.dart';
+import 'cart_page.dart';
+//import 'SideBar.dart';
 
 
 class HomePage extends StatelessWidget {
@@ -30,9 +31,9 @@ class HomePage extends StatelessWidget {
                   ),
                 ]),
             child: badges.Badge(
-              //badgeContent: Text("3"),
               child: InkWell(
-                onTap: () {},
+                onTap: () {Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => CartPage()));},
                 child: Icon(
                   CupertinoIcons.cart,
                   size: 30,
@@ -42,7 +43,7 @@ class HomePage extends StatelessWidget {
             ),
           )],
       ),
-      drawer: SideBar(),
+      //drawer: SideBar(),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
