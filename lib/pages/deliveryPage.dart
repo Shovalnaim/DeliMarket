@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
+import 'Pay.dart';
+
 class Deli extends StatefulWidget {
   static const String id = "Deli";
 
@@ -11,12 +13,11 @@ class Deli extends StatefulWidget {
 }
 
 class _DeliState extends State<Deli> {
-  TextEditingController _controller =
-  TextEditingController();
+  TextEditingController _controller = TextEditingController();
   Color containerColor = Colors.transparent; // Initial color
   bool isContainerVisible = true;
   String select = "select the time of delivery";
-  String phone='';
+  String phone = '';
   String prefix = '';
   List<String> times = [
     "11:00",
@@ -35,12 +36,10 @@ class _DeliState extends State<Deli> {
     "053",
     "054",
   ];
-  List<Map<String, dynamic>> data = [];  // List containing the JSON data
-  List<Map<String, dynamic>> filteredData =
-  []; // Filtered data for Eilat
+  List<Map<String, dynamic>> data = []; // List containing the JSON data
+  List<Map<String, dynamic>> filteredData = []; // Filtered data for Eilat
   TextEditingController searchController =
-  TextEditingController(); // Controller for the search street field
-
+      TextEditingController(); // Controller for the search street field
 
   @override
   void initState() {
@@ -68,8 +67,8 @@ class _DeliState extends State<Deli> {
         // Update the data and filteredData lists
         filteredData = data
             .where((item) =>
-        item['city_name'] != null &&
-            item['city_name'].toLowerCase() == 'אילת')
+                item['city_name'] != null &&
+                item['city_name'].toLowerCase() == 'אילת')
             .toList();
       });
     } else {
@@ -77,30 +76,29 @@ class _DeliState extends State<Deli> {
     }
   }
 
-
   void filterList(String query) {
     // Filter the data based on the user's input
     setState(() {
       filteredData = data
           .where((item) =>
-      item['city_name'] != null &&
-          item['city_name'].toLowerCase() == 'אילת' &&
-          item['street_name'] != null &&
-          item['street_name'].toLowerCase().contains(query.toLowerCase()))
+              item['city_name'] != null &&
+              item['city_name'].toLowerCase() == 'אילת' &&
+              item['street_name'] != null &&
+              item['street_name'].toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
+
   Autocomplete<String> buildAutocomplete() {
     //This function returns an Autocomplete widget for street names.
     // It's designed to help users easily find and select their street from a list of suggestions.
     return Autocomplete<String>(
       optionsBuilder: (TextEditingValue textEditingValue) async {
-        await Future.delayed(
-            Duration(milliseconds: 1));
+        await Future.delayed(Duration(milliseconds: 1));
         return filteredData
             .where((item) => item['street_name']!
-            .toLowerCase()
-            .contains(textEditingValue.text.toLowerCase()))
+                .toLowerCase()
+                .contains(textEditingValue.text.toLowerCase()))
             .map<String>((item) => item['street_name']! as String)
             .toList();
       },
@@ -143,7 +141,7 @@ class _DeliState extends State<Deli> {
                 borderSide: BorderSide.none, // Remove border
               ),
               contentPadding:
-              EdgeInsets.symmetric(horizontal: 10.0), // Adjust padding
+                  EdgeInsets.symmetric(horizontal: 10.0), // Adjust padding
             ),
           ),
         );
@@ -185,237 +183,273 @@ class _DeliState extends State<Deli> {
       },
     );
   }
+
+  bool isFormCompleted() {
+    // Check if the DropdownButton is selected
+    if (select == "select the time of delivery") {
+      return false;
+    }
+
+    // Check if the TextField is completed
+    if (_controller.text.isEmpty) {
+      return false;
+    }
+
+    // Check if the Autocomplete is completed
+    if (searchController.text.isEmpty) {
+      return false;
+    }
+
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         height: MediaQuery.of(context).size.height,
-        child: Stack(
-            children: [
-              Positioned.fill(
-                child: Container(
-                  padding: EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage("images/Super.avif"), fit: BoxFit.cover),
+        child: Stack(children: [
+          Positioned.fill(
+            child: Container(
+              padding: EdgeInsets.only(top: 20),
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage("images/Super.avif"), fit: BoxFit.cover),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 200.0,
+              decoration: BoxDecoration(
+                color: Colors.orange,
+                boxShadow: [BoxShadow(blurRadius: 20.0)],
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.elliptical(
+                    MediaQuery.of(context).size.width,
+                    100.0,
                   ),
                 ),
               ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 200.0,
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    boxShadow: [BoxShadow(blurRadius: 20.0)],
-                    borderRadius: BorderRadius.vertical(
-                      bottom: Radius.elliptical(
-                        MediaQuery.of(context).size.width,
-                        100.0,
-                      ),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Delivery Page',
-                      style: TextStyle(color: Colors.white, fontSize: 20.0),
-                    ),
-                  ),
+              child: Center(
+                child: Text(
+                  'Delivery Page',
+                  style: TextStyle(color: Colors.white, fontSize: 20.0),
                 ),
               ),
-              Positioned.fill(
-                top: 200.0,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(width: 2, color: Colors.black),
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Builder(
-                                  builder: (context) {
-                                    _controller.addListener(() {
-                                      String enteredText = _controller.text;
-                                      if (enteredText.length >= 3) {
-                                        String firstTwoDigits =
+            ),
+          ),
+          Positioned.fill(
+            top: 200.0,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          border: Border.all(width: 2, color: Colors.black),
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Builder(
+                              builder: (context) {
+                                _controller.addListener(() {
+                                  String enteredText = _controller.text;
+                                  if (enteredText.length >= 3) {
+                                    String firstTwoDigits =
                                         enteredText.substring(0, 3);
-                                        if (firstTwoDigits != '050' &&
-                                            firstTwoDigits != '052' &&
-                                            firstTwoDigits != '053' &&
-                                            firstTwoDigits != '054') {
-                                          // Clear the text and show an error message
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: Text('Error'),
-                                                content: Text(
-                                                  'Invalid phone number - enter just the two number of prefix without the first zero',
-                                                  style: TextStyle(
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 20),
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: Text('OK'),
-                                                  ),
-                                                ],
-                                              );
-                                            },
+                                    if (firstTwoDigits != '050' &&
+                                        firstTwoDigits != '052' &&
+                                        firstTwoDigits != '053' &&
+                                        firstTwoDigits != '054') {
+                                      // Clear the text and show an error message
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('Error'),
+                                            content: Text(
+                                              'Invalid phone number - enter just the two number of prefix without the first zero',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text('OK'),
+                                              ),
+                                            ],
                                           );
-                                          _controller.clear();
-                                        }
-                                      }
-                                    });
-                                    return Container(
-                                      height: 50,
-                                      width: 150,
-                                      decoration: BoxDecoration(
-                                        color: Colors.orange[200],
-                                        borderRadius: BorderRadius.circular(60.0),
-                                        border: Border.all(color: Colors.black),
-                                      ),
-                                      child: TextField(
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                                          LengthLimitingTextInputFormatter(10),
-                                        ],
-                                        controller: _controller,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            // Update the phone variable
-                                            phone = value;
-                                          });
                                         },
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.orange[200],
-                                          border: OutlineInputBorder(
-                                            borderSide: BorderSide.none, // Remove border
-                                            borderRadius: BorderRadius.circular(25.0),
-                                          ),
-                                          hintText: "Phone",
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 20.0), // Adjust padding
-
-                                        ),
-                                      ),
-                                    );
-
-                                  },
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black, width: 2),
-                            color:
-                            Colors.orange[200],
-                            borderRadius: BorderRadius.circular(
-                                20.0),
-                          ),
-                          child: DropdownButton<String>(
-                            onChanged: (value) {
-                              setState(
-                                    () {
-                                  select = value!;
-                                  showDialog<void>(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: Text("See You"),
-                                          content: Text(
-                                              "your chooice is that the delivery will came to your house at the " +
-                                                  select +
-                                                  " are you sure?"),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              style: TextButton.styleFrom(
-                                                textStyle: Theme.of(context)
-                                                    .textTheme
-                                                    .labelLarge,
-                                              ),
-                                              child: const Text('Disable'),
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                                //here i need to delete the
-                                              },
-                                            ),
-                                            TextButton(
-                                              style: TextButton.styleFrom(
-                                                textStyle: Theme.of(context)
-                                                    .textTheme
-                                                    .labelLarge,
-                                              ),
-                                              child: const Text('Enable'),
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                                //here to add the navigator to the home page
-                                              },
-                                            ),
-                                          ],
-                                        );
+                                      );
+                                      _controller.clear();
+                                    }
+                                  }
+                                });
+                                return Container(
+                                  height: 50,
+                                  width: 150,
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange[200],
+                                    borderRadius: BorderRadius.circular(60.0),
+                                    border: Border.all(color: Colors.black),
+                                  ),
+                                  child: TextField(
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.allow(
+                                          RegExp(r'[0-9]')),
+                                      LengthLimitingTextInputFormatter(10),
+                                    ],
+                                    controller: _controller,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        // Update the phone variable
+                                        phone = value;
                                       });
-                                },
-                              );
-                            },
-                            hint: Text(
-                              select,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                                    },
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.orange[200],
+                                      border: OutlineInputBorder(
+                                        borderSide:
+                                            BorderSide.none, // Remove border
+                                        borderRadius:
+                                            BorderRadius.circular(25.0),
+                                      ),
+                                      hintText: "Phone",
+                                      contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 20.0), // Adjust padding
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                            isExpanded: true,
-                            underline: SizedBox(),
-                            dropdownColor: Colors.orange,
-                            elevation: 8,
-                            items: times.map((String value) {
-                              return DropdownMenuItem<String>(
-                                  value: value, child: Text(value));
-                            }).toList(),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black, width: 2),
+                        color: Colors.orange[200],
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: DropdownButton<String>(
+                        onChanged: (value) {
+                          setState(
+                            () {
+                              select = value!;
+                              showDialog<void>(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text("See You"),
+                                      content: Text(
+                                          "your chooice is that the delivery will came to your house at the " +
+                                              select +
+                                              " are you sure?"),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          style: TextButton.styleFrom(
+                                            textStyle: Theme.of(context)
+                                                .textTheme
+                                                .labelLarge,
+                                          ),
+                                          child: const Text('Disable'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                            //here i need to delete the
+                                          },
+                                        ),
+                                        TextButton(
+                                          style: TextButton.styleFrom(
+                                            textStyle: Theme.of(context)
+                                                .textTheme
+                                                .labelLarge,
+                                          ),
+                                          child: const Text('Enable'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                            //here to add the navigator to the home page
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  });
+                            },
+                          );
+                        },
+                        hint: Text(
+                          select,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
+                        isExpanded: true,
+                        underline: SizedBox(),
+                        dropdownColor: Colors.orange,
+                        elevation: 8,
+                        items: times.map((String value) {
+                          return DropdownMenuItem<String>(
+                              value: value, child: Text(value));
+                        }).toList(),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: buildAutocomplete(),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-
-                          print("Entered Phone Number: $phone");
-                        },
-                        child: Text('Check Completion'),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: buildAutocomplete(),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      print("Entered Phone Number: $phone");
+                      if (isFormCompleted()) {
+                        // Navigate to pay.id page
+                        Navigator.pushNamed(context, Pay.id);
+                      } else {
+                        // Show a popup message that some details are incomplete
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text("Incomplete Details"),
+                              content:
+                                  Text("Please fill in all required fields."),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                    },
+                    child: Text('Check Completion'),
+                  ),
+                ],
               ),
-            ]),
+            ),
+          ),
+        ]),
       ),
     );
   }
-
 }
-
-
-
-

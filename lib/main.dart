@@ -7,6 +7,7 @@ import 'package:markettest/HomePage.dart';
 import 'package:markettest/pages/Meat.dart';
 import 'package:markettest/StartPage.dart';
 import 'package:markettest/components/cart.dart';
+import 'package:markettest/pages/Pay.dart';
 import 'package:provider/provider.dart';
 import 'CategoriesWidget.dart';
 import 'pages/Pasta.dart';
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
         Condiments.id:(context)=>Condiments(),
         FishPage.id:(context)=>FishPage(),
         Deli.id:(context)=>Deli(),
+        Pay.id:(context)=>Pay()
 
       },
     );
