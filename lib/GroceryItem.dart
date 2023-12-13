@@ -8,8 +8,8 @@ class GroceryItemTile extends StatefulWidget {
   int unit;
   final String price;
   final String image;
-  final List<List<dynamic>> listName;
-  void Function()? onPressed;
+  final List<List<dynamic>> listName; //List representing the item details
+  void Function()? onPressed; // Callback function when "Add To Cart" is pressed
 
   GroceryItemTile({
     Key? key,
@@ -31,6 +31,7 @@ class _GroceryItemTileState extends State<GroceryItemTile> {
     if (widget.unit > 0) {
       setState(() {
         widget.unit--;
+        // Update the quantity in the cart using Provider
         Provider.of<Cart>(context, listen: false)
             .updateUnit(widget.name, widget.unit,widget.listName);
       });
@@ -39,6 +40,7 @@ class _GroceryItemTileState extends State<GroceryItemTile> {
   void incrementUnit() {
     setState(() {
       widget.unit++;
+      // Update the quantity in the cart using Provider
       Provider.of<Cart>(context, listen: false)
           .updateUnit(widget.name, widget.unit,widget.listName);
     });
