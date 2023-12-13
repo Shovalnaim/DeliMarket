@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badges;
-import 'GroceryItem.dart';
-import 'cart.dart';
+import '../GroceryItem.dart';
+import '../components/cart.dart';
 import 'cart_page.dart';
 
 

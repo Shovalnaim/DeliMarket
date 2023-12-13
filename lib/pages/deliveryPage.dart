@@ -398,9 +398,7 @@ class _DeliState extends State<Deli> {
       ),
     );
   }
-  void showConfirmationDialog() {
 
-  }
 }
 
 

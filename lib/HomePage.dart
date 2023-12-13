@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
-//import 'package:provider/provider.dart';
 import 'CategoriesWidget.dart';
-// import 'GroceryItem.dart';
-// import 'cart.dart';
-import 'cart_page.dart';
+import 'pages/cart_page.dart';
 //import 'SideBar.dart';
 
 class HomePage extends StatelessWidget {
@@ -14,7 +11,6 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.yellow,
       appBar: AppBar(

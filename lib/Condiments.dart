@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badges;
 import 'GroceryItem.dart';
-import 'cart.dart';
-import 'cart_page.dart';
+import 'components/cart.dart';
+import 'pages/cart_page.dart';
 
 class Condiments extends StatelessWidget {
   static const String id = "condiments";

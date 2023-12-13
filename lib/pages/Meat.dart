@@ -2,20 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badges;
-import 'GroceryItem.dart';
-import 'cart.dart';
+import '../GroceryItem.dart';
+import '../components/cart.dart';
 import 'cart_page.dart';
 
-class Vegetables extends StatelessWidget {
-  static const String id="vegetables";
+class Meat extends StatelessWidget {
+static const String id="meat";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightGreen,
+      backgroundColor: Colors.brown,
       appBar: AppBar(
         title: Text(
-          "Vegetables Page",
+          "Meat Page",
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -58,7 +58,7 @@ class Vegetables extends StatelessWidget {
             children: [
               Expanded(child: Consumer<Cart>(builder: (context, value, child) {
                 return GridView.builder(
-                  itemCount: value.vegetables.length,
+                  itemCount: value.meat.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
@@ -67,16 +67,16 @@ class Vegetables extends StatelessWidget {
                   ),
                   itemBuilder: (context, index) {
                     return GroceryItemTile(
-                      name: value.vegetables[index][0],
-                      unit: value.vegetables[index][1],
-                      price: value.vegetables[index][2],
-                      image: value.vegetables[index][3],
-                      listName: value.vegetables,
+                      name: value.meat[index][0],
+                      unit: value.meat[index][1],
+                      price: value.meat[index][2],
+                      image: value.meat[index][3],
+                      listName: value.meat,
 
                       onPressed: () {
                         Provider.of<Cart>(context, listen: false).addItemToCart(
                             index,
-                            Provider.of<Cart>(context, listen: false).pasta);
+                            Provider.of<Cart>(context, listen: false).meat);
                       },
                     );
                   },

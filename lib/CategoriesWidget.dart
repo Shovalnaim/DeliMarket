@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:markettest/BreadPage.dart';
-import 'package:markettest/FishPage.dart';
-import 'package:markettest/Fruits.dart';
-import 'package:markettest/Meat.dart';
+import 'package:markettest/pages/BreadPage.dart';
+import 'package:markettest/pages/FishPage.dart';
+import 'package:markettest/pages/Fruits.dart';
+import 'package:markettest/pages/Meat.dart';
 import 'Condiments.dart';
-import 'Pasta.dart';
-import 'Vegetables.dart';
+import 'pages/Pasta.dart';
+import 'pages/Vegetables.dart';
 
 class CategoriesWidget extends StatelessWidget {
   static const String id = "category";

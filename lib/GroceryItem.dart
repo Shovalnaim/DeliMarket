@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'cart.dart';
+import 'components/cart.dart';
 
 class GroceryItemTile extends StatefulWidget {
   final String name;

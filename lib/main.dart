@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:markettest/BreadPage.dart';
+import 'package:markettest/pages/BreadPage.dart';
 import 'package:markettest/Condiments.dart';
-import 'package:markettest/FishPage.dart';
-import 'package:markettest/Fruits.dart';
+import 'package:markettest/pages/FishPage.dart';
+import 'package:markettest/pages/Fruits.dart';
 import 'package:markettest/HomePage.dart';
-import 'package:markettest/Meat.dart';
+import 'package:markettest/pages/Meat.dart';
 import 'package:markettest/StartPage.dart';
-import 'package:markettest/cart.dart';
+import 'package:markettest/components/cart.dart';
 import 'package:provider/provider.dart';
 import 'CategoriesWidget.dart';
-import 'Pasta.dart';
-import 'Vegetables.dart';
-import 'deliveryPage.dart';
+import 'pages/Pasta.dart';
+import 'pages/Vegetables.dart';
+import 'pages/deliveryPage.dart';
 
-
-// void main() {
-//   runApp(const MyApp());
-// }
 void main() {
   runApp(
     ChangeNotifierProvider(
