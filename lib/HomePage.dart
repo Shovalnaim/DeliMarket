@@ -1,25 +1,32 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
+//import 'package:provider/provider.dart';
 import 'CategoriesWidget.dart';
+// import 'GroceryItem.dart';
+// import 'cart.dart';
 import 'cart_page.dart';
 //import 'SideBar.dart';
-
 
 class HomePage extends StatelessWidget {
   static String id = "HomePage";
 
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.yellow,
       appBar: AppBar(
-        title: Text("Category Page",),centerTitle: true,
+        title: Text(
+          "Category Page",
+        ),
+        centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           Container(
-            padding: EdgeInsets.only(right: 5,left: 5,top: 5),
+            padding: EdgeInsets.only(right: 5, left: 5, top: 5),
             margin: EdgeInsets.all(10),
             decoration: BoxDecoration(
                 color: Colors.yellow,
@@ -32,8 +39,10 @@ class HomePage extends StatelessWidget {
                 ]),
             child: badges.Badge(
               child: InkWell(
-                onTap: () {Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => CartPage()));},
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => CartPage()));
+                },
                 child: Icon(
                   CupertinoIcons.cart,
                   size: 30,
@@ -41,7 +50,8 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
-          )],
+          )
+        ],
       ),
       //drawer: SideBar(),
       body: SafeArea(
@@ -88,8 +98,7 @@ class HomePage extends StatelessWidget {
                             hintText: "Search", border: InputBorder.none),
                       ),
                     ),
-                    Spacer(),
-                    Icon(Icons.filter_list),
+
                   ],
                 ),
               ),
@@ -107,6 +116,7 @@ class HomePage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CategoriesWidget(),
+
                   ],
                 ),
               )

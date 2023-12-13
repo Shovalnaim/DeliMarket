@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'cart.dart';
+import 'deliveryPage.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
@@ -9,12 +10,21 @@ class CartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("My Cart"),
-          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          iconTheme: IconThemeData(color: Colors.black),
         ),
         body: Consumer<Cart>(builder: (context, value, child) {
           return Column(
             children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  "My Cart",
+                  style: TextStyle(fontSize: 36,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
               Expanded(
                 child: ListView.builder(
                     padding: EdgeInsets.all(2),
@@ -36,7 +46,6 @@ class CartPage extends StatelessWidget {
                               onPressed: () {
                                 Provider.of<Cart>(context, listen: false)
                                     .removeItem(index);
-
                               },
                             ),
                           ),
@@ -47,18 +56,46 @@ class CartPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(40.0),
                 child: Container(
-                  decoration: BoxDecoration(color: Colors.purple),
+                  decoration: BoxDecoration(
+                      color: Colors.purple,
+                      borderRadius: BorderRadius.circular(10)),
                   padding: EdgeInsets.all(20),
                   child: Row(
-                    children: [
-                      Column(
-                        children: [Text('Pay Now'),
-                         Text("\$ "+value.calculate())],
-                      )
-                    ],
-                  ),
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          children: [
+                            Text('Total Price'),
+                            Text(
+                              "\$ " + value.calculate(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 15),
+                            )
+                          ],
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black, width: 2),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, Deli.id);
+                            },
+                            child: Row(
+                              children: [
+                                Text(
+                                  'Pay Now',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Icon(Icons.arrow_forward_ios),
+                              ],
+                            ),
+                          ),
+                        )
+                      ]),
                 ),
-              )
+              ),
             ],
           );
         }));

@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'CategoriesWidget.dart';
 import 'Pasta.dart';
 import 'Vegetables.dart';
+import 'deliveryPage.dart';
 
 
 // void main() {
@@ -33,7 +34,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: Start.id,
-      //initialRoute: BreadPage.id,
       routes: {
         Start.id:(context)=>Start(),
         BreadPage.id: (context) => BreadPage(),
@@ -44,8 +44,9 @@ class MyApp extends StatelessWidget {
         Meat.id:(context)=>Meat(),
         Fruits.id:(context)=>Fruits(),
         Condiments.id:(context)=>Condiments(),
-        FishPage.id:(context)=>FishPage()
-        // Add more routes as needed
+        FishPage.id:(context)=>FishPage(),
+        Deli.id:(context)=>Deli(),
+
       },
     );
   }

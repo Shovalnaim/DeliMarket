@@ -12,21 +12,65 @@ class Cart extends ChangeNotifier {
     ["bread8", 0, "4.9", "images/bread/img8.jpeg"],
   ];
   final List<List<dynamic>> fish = [
-    ["amnon", 0, "5", "images/fish/amnon.jpeg"],
-    ["buri", 0, "6", "images/fish/buri.jpeg"],
-    ["denis", 0, "4", "images/fish/denis.jpeg"],
-    ["solomon", 0, "7", "images/fish/salomon.jpeg"],
-    ["sardin", 0, "8", "images/fish/sardin.jpeg"],
+    ["Amnon", 0, "5", "images/fish/amnon.jpeg"],
+    ["Buri", 0, "6", "images/fish/buri.jpeg"],
+    ["Denis", 0, "4", "images/fish/denis.jpeg"],
+    ["Solomon", 0, "7", "images/fish/salomon.jpeg"],
+    ["Sardin", 0, "8", "images/fish/sardin.jpeg"],
   ];
-  final List<List<dynamic>> condiments = [];
-  // void updateUnit(String itemName, int newUnit) {
-  //   //function that resive name of product and the change of units and update the units in cart
-  //   final itemIndex = bread.indexWhere((item) => item[0] == itemName);
-  //   if (itemIndex != -1) {
-  //     bread[itemIndex][1] = newUnit;
-  //     notifyListeners();
-  //   }
-  // }
+  final List<List<dynamic>> condiments = [
+    ["Black pepper", 0, "1", "images/condiments/blackpepper.jpeg"],
+    ["Chili", 0, "3.9", "images/condiments/chili.jpeg"],
+    ["Curry", 0, "2", "images/condiments/curry.jpeg"],
+    ["Nutmeg", 0, "1.9", "images/condiments/Nutmeg.jpeg"],
+    ["Spicy paprika", 0, "2", "images/condiments/spicypaprika.jpeg"],
+    ["Sweet paprika", 0, "1", "images/condiments/sweetpaprika.jpeg"],
+    ["Turmeric", 0, "0.5", "images/condiments/turmeric.jpeg"],
+  ];
+  final List<List<dynamic>> fruits = [
+    ["Apple", 0, "6", "images/fruits/Apple.jpeg"],
+    ["Banana", 0, "3", "images/fruits/Banana.jpeg"],
+    ["Grapes", 0, "6", "images/fruits/grapes.jpeg"],
+    ["Mango", 0, "1", "images/fruits/mango.jpeg"],
+    ["Papia", 0, "2", "images/fruits/papia.jpeg"],
+    ["Pear", 0, "6", "images/fruits/pear.jpeg"],
+    ["Pineapple", 0, "5", "images/fruits/pineapple.jpeg"],
+    ["Watermelon", 0, "8", "images/fruits/watermelon.jpeg"],
+  ];
+  final List<List<dynamic>> meat = [
+    ["Foiegras", 0, "60", "images/meat/Foiegras.jpeg"],
+    ["Hearts", 0, "32", "images/meat/hearts.jpeg"],
+    ["Kebab", 0, "61", "images/meat/kebab.jpeg"],
+    ["Liver", 0, "34", "images/meat/liver.jpeg"],
+    ["Spring chicken", 0, "22", "images/meat/springchicken.jpeg"],
+    ["Steak", 0, "50", "images/meat/steak.jpeg"],
+    ["Sweet breads", 0, "45", "images/meat/Sweetbreads.jpeg"],
+  ];
+  final List<List<dynamic>> pasta = [
+    ["Cheese Ravioli", 0, "60", "images/pasta/Cheeseravioli.jpg"],
+    ["Fettuccine", 0, "32", "images/pasta/Fettuccine.jpeg"],
+    ["Mushroom Ravioli", 0, "61", "images/pasta/Mushroomravioli.jpeg"],
+    ["Pappardella Pasta", 0, "34", "images/pasta/Pappardellapasta.jpeg"],
+    ["Spaghetti", 0, "22", "images/pasta/spaghetti.jpeg"],
+    ["Sweet Potato Ravioli", 0, "50", "images/pasta/Sweetpotatoravioli.jpeg"],
+    ["Tortellini", 0, "45", "images/pasta/Tortellini.jpeg"],
+  ];
+
+  final List<List<dynamic>> vegetables = [
+    ["broccoli", 0, "60", "images/vegetables/broccoli.jpeg"],
+    ["cabbage", 0, "32", "images/vegetables/cabbage.jpeg"],
+    ["coriander", 0, "61", "images/vegetables/coriander.jpeg"],
+    ["cucumber", 0, "34", "images/vegetables/cucumber.jpeg"],
+    ["eggplant", 0, "22", "images/vegetables/eggplant.jpeg"],
+    ["gamba", 0, "50", "images/vegetables/gamba.jpeg"],
+    ["HotPepper", 0, "45", "images/vegetables/HotPepper.jpeg"],
+    ["lemon", 0, "61", "images/vegetables/lemon.jpeg"],
+    ["Onion", 0, "34", "images/vegetables/Onion.jpeg"],
+    ["parsley", 0, "22", "images/vegetables/parsley.jpeg"],
+    ["Squash", 0, "50", "images/vegetables/Squash.jpeg"],
+    ["tomato", 0, "45", "images/vegetables/tomato.jpeg"],
+  ];
+
   void updateUnit(String itemName, int newUnit, List<List<dynamic>> itemList) {
     // function that receives the name of the product, the change in units, and updates the units in the cart
     final itemIndex = itemList.indexWhere((item) => item[0] == itemName);
@@ -41,27 +85,9 @@ class Cart extends ChangeNotifier {
   get shop => bread;
   get fh=>items;
   get buyItem => items;
+  get cond=>items;
 
-  // void addItemToCart(int index) {
-  //   List<dynamic> newItem = bread[index];
-  //   String itemName = newItem[0];
-  //
-  //   // Check if the item is already in the cart
-  //   bool itemExists = false;
-  //   for (int i = 0; i < items.length; i++) {
-  //     if (items[i][0] == itemName) {
-  //       // Item already exists, update units
-  //       updateUnit(itemName, newItem[1]);
-  //       itemExists = true;
-  //       break;
-  //     }
-  //   }
-  //   // If the item is not in the cart, add the product
-  //   if (!itemExists) {
-  //     items.add(newItem);
-  //   }
-  //   notifyListeners(); //update the list with the new changes
-  // }
+
   void addItemToCart(int index, List<List<dynamic>> itemList) {
     List<dynamic> newItem = itemList[index];
     String itemName = newItem[0];

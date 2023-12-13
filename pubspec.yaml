@@ -37,6 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   provider: ^6.1.1
   badges: ^3.1.2
+  http: 1.1.2
+  intl_phone_field: ^3.2.0
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +68,11 @@ flutter:
      - images/bread/
      - images/categories/
      - images/fish/
+     - images/condiments/
+     - images/fruits/
+     - images/meat/
+     - images/pasta/
+     - images/vegetables/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -71,10 +71,6 @@ class FishPage extends StatelessWidget {
                       price: value.fish[index][2],
                       image: value.fish[index][3],
                       listName: value.fish,
-                      // onPressed: () {
-                      //   Provider.of<Cart>(context, listen: false)
-                      //       .addItemToCart(index);
-                      // },
                       onPressed: () {
                         Provider.of<Cart>(context, listen: false).addItemToCart(
                             index,
