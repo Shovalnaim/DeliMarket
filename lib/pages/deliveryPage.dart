@@ -416,7 +416,7 @@ class _DeliState extends State<Deli> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      print("Entered Phone Number: $phone");
+                      print("Entered Phone Number: $phone"); // check
                       if (isFormCompleted()) {
                         // Navigate to pay.id page
                         Navigator.pushNamed(context, Pay.id);
