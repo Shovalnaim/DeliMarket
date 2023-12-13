@@ -35,11 +35,11 @@ class _DeliState extends State<Deli> {
     "053",
     "054",
   ];
-  List<Map<String, dynamic>> data = []; //here we have list of the json file
+  List<Map<String, dynamic>> data = [];  // List containing the JSON data
   List<Map<String, dynamic>> filteredData =
-  []; // here we have just the streets in eilat city
+  []; // Filtered data for Eilat
   TextEditingController searchController =
-  TextEditingController(); //here is what the user write to search
+  TextEditingController(); // Controller for the search street field
 
 
   @override
@@ -49,23 +49,23 @@ class _DeliState extends State<Deli> {
   }
 
   Future<void> fetchData() async {
-    //this function reead the json file
+    // Fetch data from the provided JSON file
     final response = await http.get(
       Uri.parse(
           'https://raw.githubusercontent.com/GabMic/israeli-cities-and-streets-list/master/israeli_street_and_cities_names.json'),
     );
 
     if (response.statusCode == 200) {
-      // id everything is ok
+      // If the request is successful
       Map<String, dynamic> jsonData = jsonDecode(response
-          .body); // all the json file enter to Map with the key and value for exmple:"city_name":"אילת"
+          .body); //  Extract the list of streets from the JSON data, for exmple:"city_name":"אילת"
 
       // Assuming that your JSON structure has a key like 'streets' that contains the list
       List<dynamic> dataList = jsonData['streets'];
 
       setState(() {
         data = List<Map<String, dynamic>>.from(dataList);
-        // Initially, filter data to include only streets in Eilat
+        // Update the data and filteredData lists
         filteredData = data
             .where((item) =>
         item['city_name'] != null &&
@@ -79,7 +79,7 @@ class _DeliState extends State<Deli> {
 
 
   void filterList(String query) {
-    //in this func the user enter strret name and search him from the result in filteredData list
+    // Filter the data based on the user's input
     setState(() {
       filteredData = data
           .where((item) =>
@@ -91,10 +91,12 @@ class _DeliState extends State<Deli> {
     });
   }
   Autocomplete<String> buildAutocomplete() {
+    //This function returns an Autocomplete widget for street names.
+    // It's designed to help users easily find and select their street from a list of suggestions.
     return Autocomplete<String>(
       optionsBuilder: (TextEditingValue textEditingValue) async {
         await Future.delayed(
-            Duration(milliseconds: 1)); // Simulate an asynchronous operation
+            Duration(milliseconds: 1));
         return filteredData
             .where((item) => item['street_name']!
             .toLowerCase()
@@ -103,6 +105,9 @@ class _DeliState extends State<Deli> {
             .toList();
       },
       onSelected: (String selectedOption) {
+        //this callback is triggered when the user selects a street from the suggestion list.
+        // It updates the searchController with the selected street name,
+        // clears the filteredData, and sets isContainerVisible to false
         setState(() {
           searchController.text = selectedOption;
           filteredData.clear();
@@ -113,6 +118,9 @@ class _DeliState extends State<Deli> {
           TextEditingController textEditingController,
           FocusNode focusNode,
           VoidCallback onFieldSubmitted) {
+        //This part specifies the visual representation of the input field.
+        // It's a styled text field inside a container,
+        // where user input is used to filter the suggestion list through the filterList function.
         return Container(
           height: 50,
           decoration: BoxDecoration(
@@ -142,6 +150,13 @@ class _DeliState extends State<Deli> {
       },
       optionsViewBuilder: (BuildContext context,
           AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+        //This part defines how Autocomplete generates its suggestion list.
+        // It filters the filteredData list based on the user's input (textEditingValue.text).
+        // It returns a list of street names that contain the input substring.
+
+        //This part defines the visual representation of the suggestion list.
+        // It's a container with a list of ListTile widgets, each representing a street name option.
+        // The onSelected callback is triggered when a user taps on a suggestion.
         return Align(
           alignment: Alignment.topRight,
           child: Container(
@@ -304,7 +319,7 @@ class _DeliState extends State<Deli> {
                           ),
                         ),
                       ),
-                      // DropdownButton added below the TextField
+
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Container(
@@ -312,9 +327,9 @@ class _DeliState extends State<Deli> {
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.black, width: 2),
                             color:
-                            Colors.orange[200], // Set the background color here
+                            Colors.orange[200],
                             borderRadius: BorderRadius.circular(
-                                20.0), // Optional: Add border radius
+                                20.0),
                           ),
                           child: DropdownButton<String>(
                             onChanged: (value) {
@@ -385,7 +400,7 @@ class _DeliState extends State<Deli> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          // Now you can access the entered phone number in enteredPhoneNumber variable
+
                           print("Entered Phone Number: $phone");
                         },
                         child: Text('Check Completion'),

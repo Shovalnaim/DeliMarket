@@ -16,6 +16,7 @@ import 'pages/deliveryPage.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
+      // the app might be using the Provider package for state management.
       create: (context) => Cart(),
       child: MyApp(),
     ),
@@ -24,13 +25,14 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: Start.id,
       routes: {
+        //Defining routes for different pages using a route map.
         Start.id:(context)=>Start(),
         BreadPage.id: (context) => BreadPage(),
         HomePage.id:(context)=>HomePage(),

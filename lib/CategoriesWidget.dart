@@ -12,6 +12,7 @@ class CategoriesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // list of category images with names and page IDs
     List<List<String>> images = [
       ["bread","bread.jpeg",BreadPage.id],
       ["condiments","condiments.jpeg",Condiments.id],
@@ -37,6 +38,7 @@ class CategoriesWidget extends StatelessWidget {
             ],
           ),
         ),
+        // Display categories using a GridView
         GridView.count(
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
           crossAxisSpacing: 10,
@@ -46,6 +48,7 @@ class CategoriesWidget extends StatelessWidget {
           childAspectRatio: 0.8,
           shrinkWrap: true,
           children: [
+            //for each entry in the 'images' list
             for (List<String> image in images)
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10),
@@ -62,30 +65,32 @@ class CategoriesWidget extends StatelessWidget {
                   children: [
                     InkWell(
                       onTap: () {
+                        // Navigate to the corresponding category page
                         Navigator.pushNamed(context,image[2]);
-                        print("move to : "+image[2]);
+
                       },
                       child: Container(
                         margin: EdgeInsets.all(10),
                         child: Image.asset("images/categories/${image[1]}"),
                       ),
                     ),
+                    // Category name
                     Padding(
                       padding: EdgeInsets.only(bottom: 10),
                       child: Container(
                         child: Text(
-                          //"Item Title",
                           image[0],
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                       ),
                     ),
+                    // here i need to add sample description
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 5),
                       child: Container(
                         child: Text(
-                          "Fresh Fruit - per unit",
+                          "to put here sample dynamic description",
                           style: TextStyle(
                               fontSize: 12, fontWeight: FontWeight.bold),
                         ),

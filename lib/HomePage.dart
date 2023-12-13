@@ -8,7 +8,6 @@ import 'pages/cart_page.dart';
 class HomePage extends StatelessWidget {
   static String id = "HomePage";
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,11 +93,10 @@ class HomePage extends StatelessWidget {
                             hintText: "Search", border: InputBorder.none),
                       ),
                     ),
-
                   ],
                 ),
               ),
-              //product
+// CategoriesWidget displaying different product categories
               Container(
                 padding: EdgeInsets.only(top: 20),
                 decoration: BoxDecoration(
@@ -112,7 +110,6 @@ class HomePage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CategoriesWidget(),
-
                   ],
                 ),
               )

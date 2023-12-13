@@ -72,7 +72,11 @@ class Cart extends ChangeNotifier {
   ];
 
   void updateUnit(String itemName, int newUnit, List<List<dynamic>> itemList) {
-    // function that receives the name of the product, the change in units, and updates the units in the cart
+    //Updates the quantity of a specific item in the cart.
+    // Parameters:
+    // itemName: The name of the product.
+    // newUnit: The new quantity of the product.
+    // itemList: The list of items to update.
     final itemIndex = itemList.indexWhere((item) => item[0] == itemName);
     if (itemIndex != -1) {
       itemList[itemIndex][1] = newUnit;
@@ -81,14 +85,19 @@ class Cart extends ChangeNotifier {
   }
 
   List items = [];
-
-  get shop => bread;
-  get fh=>items;
-  get buyItem => items;
-  get cond=>items;
+//****I might need them later
+  // get shop => bread;
+  // get fh=>items;
+  // get buyItem => items;
+  // get cond=>items;
 
 
   void addItemToCart(int index, List<List<dynamic>> itemList) {
+    //Adds an item to the shopping cart.
+    // Parameters:
+    // index: The index of the item in the product list.
+    // itemList: The list of items to add the product from.
+    // Checks if the item is already in the cart. If yes, it updates the quantity; otherwise, it adds the product to the cart.
     List<dynamic> newItem = itemList[index];
     String itemName = newItem[0];
 
@@ -111,8 +120,10 @@ class Cart extends ChangeNotifier {
 
 //remove item from the cart
   void removeItem(int index) {
+    //Removes an item from the cart based on its index.
     items.removeAt(index);
-    notifyListeners();
+    notifyListeners();//The notifyListeners() method
+    // is called whenever there is a change in the cart, which notifies any listeners to rebuild and reflect the changes.
   }
 
   String calculate() {
