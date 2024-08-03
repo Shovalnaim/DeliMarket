@@ -1,9 +1,33 @@
 import 'dart:convert';
+//import 'dart:math';
+import 'order.dart';
+import 'package:flutter/services.dart';
+import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+//import 'package:markettest/pages/order.dart';
+import 'package:provider/provider.dart';
+import '../components/cart.dart';
 
-import 'Pay.dart';
+class UserDetails {
+  final String name;
+  final String phone;
+  final String selectedStreet;
+  final TimeOfDay deliveryTime;
+  final DateTime deliveryDate;
+
+  UserDetails({
+    required this.name,
+    required this.phone,
+    required this.selectedStreet,
+    required this.deliveryTime,
+    required this.deliveryDate,
+  });
+}
 
 class Deli extends StatefulWidget {
   static const String id = "Deli";
@@ -13,23 +37,309 @@ class Deli extends StatefulWidget {
 }
 
 class _DeliState extends State<Deli> {
+  late UserDetails userDetails;
+
+
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
+
+  late DateTime deliveryDate; //isFormCompleted
+  // static final dateFormat = DateFormat('dd/MM/yyyy');
+  late TimeOfDay deliveryTime;
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime currentDate = DateTime.now();
+
+    DateTime nextSelectableDate = currentDate;
+    //.add(Duration(days: 1));
+    print('Before while loop: nextSelectableDate = $nextSelectableDate');
+    // Find the next available date excluding Fridays and Saturdays
+    while (nextSelectableDate.weekday == DateTime.friday ||
+        nextSelectableDate.weekday == DateTime.saturday) {
+      print('Inside while loop: nextSelectableDate = $nextSelectableDate');
+      nextSelectableDate = nextSelectableDate.add(Duration(days: 1));
+    }
+    print('After while loop: nextSelectableDate = $nextSelectableDate');
+    // Set the last selectable date to be 7 weekdays after the current date
+    DateTime lastSelectableDate = nextSelectableDate.add(Duration(days: 7));
+    print('Before showDatePicker'); // Add this print statement
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: nextSelectableDate,
+      firstDate: nextSelectableDate,
+      lastDate: lastSelectableDate,
+      selectableDayPredicate: (DateTime day) =>
+          day.weekday != DateTime.friday && day.weekday != DateTime.saturday,
+    );
+    print('After showDatePicker'); // Add this print statement
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+        deliveryDate = picked;
+      });
+    }
+  }
+
+  // DateTime? selectedDate;
+  // TimeOfDay? selectedTime;
+  //
+  // late DateTime deliveryDate; //isFormCompleted, Keep as DateTime
+  // late TimeOfDay deliveryTime;
+  //
+  // Future<void> _selectDate(BuildContext context) async {
+  //   final DateTime currentDate = DateTime.now();
+  //
+  //   DateTime nextSelectableDate = currentDate;
+  //   print('Before while loop: nextSelectableDate = $nextSelectableDate');
+  //   // Find the next available date excluding Fridays and Saturdays
+  //   while (nextSelectableDate.weekday == DateTime.friday ||
+  //       nextSelectableDate.weekday == DateTime.saturday) {
+  //     print('Inside while loop: nextSelectableDate = $nextSelectableDate');
+  //     nextSelectableDate = nextSelectableDate.add(Duration(days: 1));
+  //   }
+  //   print('After while loop: nextSelectableDate = $nextSelectableDate');
+  //   // Set the last selectable date to be 7 weekdays after the current date
+  //   DateTime lastSelectableDate = nextSelectableDate.add(Duration(days: 7));
+  //   print('Before showDatePicker'); // Add this print statement
+  //   final DateTime? picked = await showDatePicker(
+  //     context: context,
+  //     initialDate: nextSelectableDate,
+  //     firstDate: nextSelectableDate,
+  //     lastDate: lastSelectableDate,
+  //     selectableDayPredicate: (DateTime day) =>
+  //     day.weekday != DateTime.friday && day.weekday != DateTime.saturday,
+  //   );
+  //   print('After showDatePicker'); // Add this print statement
+  //   if (picked != null && picked != selectedDate) {
+  //     setState(() {
+  //       selectedDate = picked;
+  //       // Convert Timestamp to DateTime
+  //       deliveryDate = picked;
+  //     });
+  //   }
+  // }
+
+
+  //זה הקודם /
+//   Future<void> _selectTime(BuildContext context) async {
+//     // Check if the selected date is the current date
+//     bool isCurrentDate =
+//         selectedDate?.isAtSameMomentAs(DateTime.now()) ?? false;
+//
+//     // initialize time in "currentTime" variable of the selected date
+//     final TimeOfDay currentTime = TimeOfDay.now();
+//     TimeOfDay initialTime;
+// print("isCurrentDate"+isCurrentDate.toString());
+//     if (isCurrentDate) {
+//       //כאן זה אם התאריך הוא היום צריכה לחשב את הזמן נסיעה ללקוח +זמן הכנה של העסק של המשלוח
+//       // If it's the current date, set the initial time to the current time + 2 hours
+//       /**** add here api time to drive to the address of user */
+//       initialTime = currentTime;
+//       print("initialTime: "+initialTime.toString());
+//       //.replacing(hour: currentTime.hour + 2);
+//
+//       // Limit the initial time to be within the range of 10 am to 6 pm
+//       if (initialTime.hour < 10) {
+//         initialTime = initialTime.replacing(hour: 10);
+//       } else if (initialTime.hour >= 18) {
+//         initialTime = TimeOfDay(hour: 17, minute: 59); // 6 pm
+//       }
+//     } else {
+//       // If it's another date, set the initial time to 10:00 AM
+//       initialTime = TimeOfDay(hour: 10, minute: 00);
+//     }
+//
+//     TimeOfDay? picked = await showTimePicker(
+//       context: context,
+//       initialTime: selectedTime ?? initialTime,
+//       builder: (BuildContext context, Widget? child) {
+//         return MediaQuery(
+//           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+//           child: child!,
+//         );
+//       },
+//     );
+    ///
+    // Check if the picked time is within the allowed range (10 am to 6 pm)
+    // if (picked != null &&
+    //     (picked.hour < 10 ||
+    //         picked.hour >= 18 ||
+    //         (picked.hour == 18 && picked.minute > 0))) {
+    //   // Show an alert or message to inform the user about the valid time range
+    //   showDialog(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return AlertDialog(
+    //         title: Text('Invalid Time'),
+    //         content:
+    //             Text('Please choose a time between \n10:00 am and 18:00 pm.'),
+    //         actions: <Widget>[
+    //           TextButton(
+    //             onPressed: () {
+    //               Navigator.of(context).pop();
+    //             },
+    //             child: Text('OK'),
+    //           ),
+    //         ],
+    //       );
+    //     },
+    //   );
+    // } else if (picked != null && picked != selectedTime) {
+    //   // Update the selected time if it's within the allowed range
+    //   setState(() {
+    //     selectedTime = picked;
+    //     deliveryTime = picked;
+    //     print("deliveryTime to string: "+deliveryTime.toString()+"selectedTime is: "+selectedTime.toString());
+    //   });
+    // }
+    // Check if the picked time is within the allowed range (10 am to 6 pm)
+
+  // //  if (picked != null) {
+  //     bool isValidTime = true;
+  //
+  //     if (picked.hour < 10 ||
+  //         picked.hour >= 18 ||
+  //         (picked.hour == 18 && picked.minute > 0)) {
+  //       isValidTime = false;
+  //     } else if (isCurrentDate &&
+  //         (picked.hour < initialTime.hour ||
+  //             (picked.hour == initialTime.hour &&
+  //                 picked.minute < initialTime.minute))) {
+  //       isValidTime = false;
+  //     }
+  //
+  //     if (!isValidTime) {
+  //       // Show an alert or message to inform the user about the valid time range
+  //       showDialog(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: Text('Invalid Time'),
+  //             content:
+  //                 Text('Please choose a time between 10:00 AM and 6:00 PM.'),
+  //             actions: <Widget>[
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop();
+  //                 },
+  //                 child: Text('OK'),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     } else {
+  //       // Update the selected time if it's within the allowed range
+  //       setState(() {
+  //         selectedTime = picked;
+  //         deliveryTime = picked;
+  //         print("deliveryTime to string: " +
+  //             deliveryTime.toString() +
+  //             " selectedTime is: " +
+  //             selectedTime.toString());
+  //       });
+  //     }
+  //   }
+  // }
+//סוף של הקודם
+
+  Future<void> _selectTime(BuildContext context) async {
+    // Check if the selected date is the current date (ignoring time)
+    bool isCurrentDate = selectedDate != null &&
+        selectedDate!.year == DateTime.now().year &&
+        selectedDate!.month == DateTime.now().month &&
+        selectedDate!.day == DateTime.now().day;
+
+    // Print the result to debug
+    print("isCurrentDate: $isCurrentDate");
+
+    // Initialize time in "currentTime" variable of the selected date
+    final TimeOfDay currentTime = TimeOfDay.now();
+    TimeOfDay initialTime;
+
+    if (isCurrentDate) {
+      // If it's the current date, set the initial time to the current time + 2 hours
+      initialTime = currentTime.replacing(hour: currentTime.hour + 2);
+      print("initTime: "+initialTime.toString()); //מראה שעה קודם כאילו שעון חורף
+      // Limit the initial time to be within the range of 10 am to 6 pm
+      if (initialTime.hour < 10) {
+        initialTime = initialTime.replacing(hour: 10);
+      } else if (initialTime.hour >= 18) {
+        initialTime = TimeOfDay(hour: 17, minute: 59); // 6 pm
+      }
+    } else {
+      // If it's another date, set the initial time to 10:00 AM
+      initialTime = TimeOfDay(hour: 10, minute: 00);
+    }
+
+    TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: selectedTime ?? initialTime,
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      bool isValidTime = true;
+
+      if (picked.hour < 10 ||
+          picked.hour >= 18 ||
+          (picked.hour == 18 && picked.minute > 0)) {
+        isValidTime = false;
+      } else if (isCurrentDate &&
+          (picked.hour < initialTime.hour ||
+              (picked.hour == initialTime.hour &&
+                  picked.minute < initialTime.minute))) {
+        // Check if the picked time is earlier than the initial time on the current date
+        isValidTime = false;
+      }
+
+      if (!isValidTime) {
+        // Show an alert or message to inform the user about the valid time range
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Invalid Time'),
+              content: Text('Please choose a time between 10:00 AM and 6:00 PM. or then you choose hour that is invalide'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // Update the selected time if it's within the allowed range
+        setState(() {
+          selectedTime = picked;
+          deliveryTime = picked;
+          print("deliveryTime to string: " +
+              deliveryTime.toString() +
+              " selectedTime is: " +
+              selectedTime.toString());
+        });
+      }
+    }
+  }
+
   TextEditingController _controller = TextEditingController();
+  TextEditingController _Textname = TextEditingController();
   Color containerColor = Colors.transparent; // Initial color
   bool isContainerVisible = true;
-  String select = "select the time of delivery";
+  bool isVisible = true;
+  // String select = "select the time of delivery";
   String phone = '';
   String prefix = '';
-  List<String> times = [
-    "11:00",
-    "12:00",
-    "13:00",
-    "14:00",
-    "16:00",
-    "17:00",
-    "18:00",
-    "19:00",
-    "20:00"
-  ];
+
   List<String> pre = [
     "050",
     "052",
@@ -122,7 +432,8 @@ class _DeliState extends State<Deli> {
         return Container(
           height: 50,
           decoration: BoxDecoration(
-            color: Colors.orange[200],
+            //color: Colors.orange[200],
+            color: Colors.white,
             borderRadius: BorderRadius.circular(20.0),
             border: Border.all(color: Colors.black),
           ),
@@ -160,7 +471,16 @@ class _DeliState extends State<Deli> {
           child: Container(
             height: 200,
             decoration: BoxDecoration(
-              color: Colors.orange,
+              image: DecorationImage(
+                image: AssetImage('images/backgroundthree.jpg'),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.black.withOpacity(
+                      0.5), // Adjust the opacity value (0.0 to 1.0)
+                  BlendMode.dstATop,
+                ),
+              ),
+              color: Colors.white,
               borderRadius: BorderRadius.all(Radius.circular(20)),
             ),
             child: Material(
@@ -185,18 +505,26 @@ class _DeliState extends State<Deli> {
   }
 
   bool isFormCompleted() {
-    // Check if the DropdownButton is selected
-    if (select == "select the time of delivery") {
+    // Check if the TextField (name) is completed-
+    if (_Textname.text.isEmpty) {
+      print(_Textname.text);
       return false;
     }
-
-    // Check if the TextField is completed
+    // Check if the TextField (phone) is completed
     if (_controller.text.isEmpty) {
+      print(_controller.text);
       return false;
     }
-
+    // // Check if the DropdownButton is selected
+    // if (select == "select the time of delivery") {
+    //   return false;
+    // }
     // Check if the Autocomplete is completed
     if (searchController.text.isEmpty) {
+      print(searchController.text);
+      return false;
+    }
+    if (deliveryDate == null || deliveryTime == null) {
       return false;
     }
 
@@ -214,45 +542,100 @@ class _DeliState extends State<Deli> {
               padding: EdgeInsets.only(top: 20),
               decoration: BoxDecoration(
                 image: DecorationImage(
-                    image: AssetImage("images/Super.avif"), fit: BoxFit.cover),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 200.0,
-              decoration: BoxDecoration(
-                color: Colors.orange,
-                boxShadow: [BoxShadow(blurRadius: 20.0)],
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.elliptical(
-                    MediaQuery.of(context).size.width,
-                    100.0,
-                  ),
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  'Delivery Page',
-                  style: TextStyle(color: Colors.white, fontSize: 20.0),
-                ),
+                    image: AssetImage("images/backgroundthree.jpg"),
+                    fit: BoxFit.cover),
               ),
             ),
           ),
           Positioned.fill(
-            top: 200.0,
+            top: 0,
+            child: Stack(
+              children: [
+                Container(
+                  height: 200.0,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [BoxShadow(blurRadius: 20.0)],
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.elliptical(
+                        MediaQuery.of(context).size.width,
+                        100.0,
+                      ),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Delivery Page',
+                      style: TextStyle(color: Colors.black, fontSize: 20.0),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  child: Container(
+                    padding: EdgeInsets.only(top: 15, left: 5),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.arrow_back,
+                            color: Colors.black,
+                          ),
+                          onPressed: () {
+                            // Navigate back when the back button is pressed
+                            Navigator.pop(context);
+                          },
+                        ),
+                        Text(
+                          'Back',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned.fill(
+            top: 250.0,
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black, width: 2),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: TextField(
+                          controller: _Textname,
+                          decoration: InputDecoration(
+                            filled: false,
+                            //fillColor: Colors.orange[200],
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: BorderRadius.circular(25.0),
+                            ),
+                            hintText: "Name",
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 20.0),
+                          ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
                     padding: EdgeInsets.all(10),
                     child: Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(width: 2, color: Colors.black),
-                          borderRadius: BorderRadius.circular(10)),
                       child: Row(
                         children: [
                           Expanded(
@@ -295,14 +678,31 @@ class _DeliState extends State<Deli> {
                                   }
                                 });
                                 return Container(
-                                  height: 50,
-                                  width: 150,
+                                  padding: EdgeInsets.symmetric(horizontal: 20),
+                                  //height: 50,
+                                  //width: 150,
                                   decoration: BoxDecoration(
-                                    color: Colors.orange[200],
-                                    borderRadius: BorderRadius.circular(60.0),
-                                    border: Border.all(color: Colors.black),
+                                    //  color: Colors.orange[200],
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    border: Border.all(
+                                        color: Colors.black, width: 2),
                                   ),
                                   child: TextField(
+                                    decoration: InputDecoration(
+                                      filled: false,
+
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                        borderSide:
+                                            BorderSide.none, // Remove border
+                                        borderRadius:
+                                            BorderRadius.circular(25.0),
+                                      ),
+                                      hintText: "Phone",
+                                      contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 20.0), // Adjust padding
+                                    ),
                                     keyboardType: TextInputType.number,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.allow(
@@ -316,19 +716,6 @@ class _DeliState extends State<Deli> {
                                         phone = value;
                                       });
                                     },
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.orange[200],
-                                      border: OutlineInputBorder(
-                                        borderSide:
-                                            BorderSide.none, // Remove border
-                                        borderRadius:
-                                            BorderRadius.circular(25.0),
-                                      ),
-                                      hintText: "Phone",
-                                      contentPadding: EdgeInsets.symmetric(
-                                          horizontal: 20.0), // Adjust padding
-                                    ),
                                   ),
                                 );
                               },
@@ -338,101 +725,444 @@ class _DeliState extends State<Deli> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black, width: 2),
-                        color: Colors.orange[200],
-                        borderRadius: BorderRadius.circular(20.0),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 10,
                       ),
-                      child: DropdownButton<String>(
-                        onChanged: (value) {
-                          setState(
-                            () {
-                              select = value!;
-                              showDialog<void>(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text("See You"),
-                                      content: Text(
-                                          "your chooice is that the delivery will came to your house at the " +
-                                              select +
-                                              " are you sure?"),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          style: TextButton.styleFrom(
-                                            textStyle: Theme.of(context)
-                                                .textTheme
-                                                .labelLarge,
-                                          ),
-                                          child: const Text('Disable'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                            //here i need to delete the
-                                          },
-                                        ),
-                                        TextButton(
-                                          style: TextButton.styleFrom(
-                                            textStyle: Theme.of(context)
-                                                .textTheme
-                                                .labelLarge,
-                                          ),
-                                          child: const Text('Enable'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                            //here to add the navigator to the home page
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  });
-                            },
-                          );
+                      GestureDetector(
+                        onTap: () {
+                          _selectDate(context);
                         },
-                        hint: Text(
-                          select,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 2),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          padding: EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.date_range),
+                              SizedBox(width: 8),
+                              selectedDate != null
+                                  ? Text(
+                                      "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}",
+                                      style: TextStyle(fontSize: 16),
+                                    )
+                                  : Text(
+                                      "Select Date",
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                            ],
                           ),
                         ),
-                        isExpanded: true,
-                        underline: SizedBox(),
-                        dropdownColor: Colors.orange,
-                        elevation: 8,
-                        items: times.map((String value) {
-                          return DropdownMenuItem<String>(
-                              value: value, child: Text(value));
-                        }).toList(),
                       ),
-                    ),
+                      SizedBox(
+                        width: 100,
+                      ),
+                      GestureDetector(
+                        onTap: () => _selectTime(context),
+                        child: Container(
+                          width: 150,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 2),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          padding: EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.alarm),
+                              SizedBox(width: 8),
+                              selectedTime != null
+                                  ? Text(
+                                      "${selectedTime!.hour}:${selectedTime!.minute}",
+                                      style: TextStyle(fontSize: 16),
+                                    )
+                                  : Text(
+                                      "Select Time",
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: buildAutocomplete(),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      print("Entered Phone Number: $phone"); // check
-                      if (isFormCompleted()) {
-                        // Navigate to pay.id page
-                        Navigator.pushNamed(context, Pay.id);
+
+                  // ElevatedButton(
+                  //   onPressed: () async {
+                  //     if (isFormCompleted()) {
+                  //       userDetails = UserDetails(
+                  //         name: _Textname.text,
+                  //         phone: phone,
+                  //         selectedStreet: searchController.text,
+                  //         deliveryTime: deliveryTime,
+                  //         deliveryDate: deliveryDate,
+                  //       );
+                  //
+                  //       // Accessing the Firebase Firestore instance
+                  //       FirebaseFirestore firestore =
+                  //           FirebaseFirestore.instance;
+                  //
+                  //       try {
+                  //         // Create a reference to the current user's 'orders' subcollection
+                  //         CollectionReference userOrdersCollection = firestore
+                  //             .collection('users')
+                  //             .doc(FirebaseAuth.instance.currentUser!.uid)
+                  //             .collection('orders');
+                  //         // Use the current date as the document ID for the order
+                  //
+                  //         String orderDate =
+                  //             DateTime.now().toString().substring(0, 10);
+                  //         // Create a list to store the cart items data
+                  //         List<Map<String, dynamic>> cartItemsData = [];
+                  //         for (List<dynamic> item
+                  //             in Provider.of<Cart>(context, listen: false)
+                  //                 .items) {
+                  //           cartItemsData.add({
+                  //             'name': item[0],
+                  //             'quantity': item[1],
+                  //             'price': item[2],
+                  //             'image': item[3],
+                  //           });
+                  //         }
+                  //
+                  //         // Add the order details to the 'orders' subcollection
+                  //         await userOrdersCollection.doc(orderDate).set(
+                  //           {
+                  //
+                  //                 'name': userDetails.name,
+                  //                 'phone': userDetails.phone,
+                  //                 'selectedStreet': userDetails.selectedStreet,
+                  //
+                  //                 'deliveryTime': _timeOfDayToTimestamp(
+                  //                     deliveryTime, deliveryDate),
+                  //                 // Convert TimeOfDay to Timestamp
+                  //                 'deliveryDate': _dateTimeToTimestamp(
+                  //                     userDetails.deliveryDate),
+                  //                 // Convert DateTime to Timestamp
+                  //                 'cartItems': cartItemsData,
+                  //
+                  //           },
+                  //         );
+                  //
+                  //         // Show a modal bottom sheet with the order details
+                  //         showModalBottomSheet(
+                  //           context: context,
+                  //           builder: (BuildContext context) {
+                  //             return Container(
+                  //               padding: EdgeInsets.all(16.0),
+                  //               child: Column(
+                  //                 crossAxisAlignment:
+                  //                     CrossAxisAlignment.stretch,
+                  //                 mainAxisSize: MainAxisSize.min,
+                  //                 children: [
+                  //                   Text('Order Details',
+                  //                       style: TextStyle(fontSize: 18.0)),
+                  //                   SizedBox(height: 16.0),
+                  //                   // Display order details in the modal
+                  //                   Text('Name: ${userDetails.name}'),
+                  //                   Text('Phone: ${userDetails.phone}'),
+                  //                   Text(
+                  //                       'Selected Street: ${userDetails.selectedStreet}'),
+                  //                   Text(
+                  //                       'Delivery Time: ${userDetails.deliveryTime.format(context)}'),
+                  //                   Text(
+                  //                       'Delivery Date: ${DateFormat('dd/MM/yyyy').format(deliveryDate)}'),
+                  //
+                  //                   Row(
+                  //                     //עצרתי פה
+                  //                     children: [
+                  //                       Expanded(
+                  //                         child: ElevatedButton(
+                  //                           onPressed: () {
+                  //                             Navigator.pushNamed(
+                  //                                 context,
+                  //                                 FinalOrder
+                  //                                     .id); //להחליף לדף תשלום אחרי שאטפל בו
+                  //                           },
+                  //                           child: Text(
+                  //                             'Continue to Payment',
+                  //                             textAlign: TextAlign.center,
+                  //                           ),
+                  //                         ),
+                  //                       ),
+                  //                       SizedBox(
+                  //                         width: 10,
+                  //                       ),
+                  //                       Expanded(
+                  //                         child: ElevatedButton(
+                  //                             onPressed: () {
+                  //                               Navigator.pop(context);
+                  //                             },
+                  //                             child: Text('Edit'),
+                  //                             style: ElevatedButton.styleFrom(
+                  //                                 minimumSize: Size(200, 40))),
+                  //                       ),
+                  //                       SizedBox(
+                  //                         width: 15,
+                  //                       ),
+                  //                     ],
+                  //                   ),
+                  //                 ],
+                  //               ),
+                  //             );
+                  //           },
+                  //         );
+                  //       } catch (e) {
+                  //         print('Error adding order: $e');
+                  //         // Show an error message if the order couldn't be added
+                  //         showDialog(
+                  //           context: context,
+                  //           builder: (BuildContext context) {
+                  //             return AlertDialog(
+                  //               title: Text('Error'),
+                  //               content: Text(
+                  //                   'Failed to place order. Please try again later.'),
+                  //               actions: [
+                  //                 TextButton(
+                  //                   onPressed: () {
+                  //                     Navigator.of(context).pop();
+                  //                   },
+                  //                   child: Text('OK'),
+                  //                 ),
+                  //               ],
+                  //             );
+                  //           },
+                  //         );
+                  //       }
+                  //     } else {
+                  //       // Show a popup message that some details are incomplete
+                  //       showDialog(
+                  //         context: context,
+                  //         builder: (BuildContext context) {
+                  //           return AlertDialog(
+                  //             title: Text('Incomplete Details'),
+                  //             content:
+                  //                 Text('Please fill in all required fields.'),
+                  //             actions: <Widget>[
+                  //               TextButton(
+                  //                 onPressed: () {
+                  //                   Navigator.of(context).pop();
+                  //                   print("check comple cliced");
+                  //                 },
+                  //                 child: Text('OK'),
+                  //               ),
+                  //             ],
+                  //           );
+                  //         },
+                  //       );
+                  //     }
+                  //   },
+                  //   child: Text('Check Completion',
+                  //       style: TextStyle(color: Colors.black)),
+                  // ),
+
+
+
+    //זה הקודם
+                   ElevatedButton(
+                    onPressed: () async {
+                     if (isFormCompleted() ) {
+                        userDetails = UserDetails(
+                          name: _Textname.text,
+                          phone: phone,
+                          selectedStreet: searchController.text,
+                          deliveryTime: deliveryTime,
+                          deliveryDate: deliveryDate,
+                        );
+
+                        // Accessing the Firebase Firestore instance
+                        FirebaseFirestore firestore =
+                            FirebaseFirestore.instance;
+
+                        try {
+                          // Create a reference to the current user's 'orders' subcollection
+                          CollectionReference userOrdersCollection = firestore
+                              .collection('users')
+                              .doc(FirebaseAuth.instance.currentUser!.uid)
+                              .collection('orders');
+
+                          // Use the current date as the document ID for the order
+                          String orderDate =
+                              DateTime.now().toString().substring(0, 10);
+
+                          // Create a list to store the cart items data
+                          List<Map<String, dynamic>> cartItemsData = [];
+                          for (List<dynamic> item
+                              in Provider.of<Cart>(context, listen: false)
+                                  .items) {
+                            cartItemsData.add({
+                              'name': item[0],
+                              'quantity': item[1],
+                              'price': item[2],
+                              'image': item[3],
+                            });
+                          }
+
+                          // Check if the 'orders' collection exists
+                          DocumentReference userDocRef = firestore
+                              .collection('users')
+                              .doc(FirebaseAuth.instance.currentUser!.uid);
+                          DocumentSnapshot userDocSnapshot =
+                              await userDocRef.get();
+
+                          if (userDocSnapshot.exists) {
+                            // Check if the order document for the current date exists
+                            DocumentSnapshot orderDoc =
+                                await userOrdersCollection.doc(orderDate).get();
+
+                            if (orderDoc.exists) {
+                              // If the document exists, update the array of cart items
+                              await userOrdersCollection.doc(orderDate).update({
+                                'cartItems': FieldValue.arrayUnion([
+                                  {
+                                    'name': userDetails.name,
+                                    'phone': userDetails.phone,
+                                    'selectedStreet':
+                                        userDetails.selectedStreet,
+                                    'deliveryTime': _timeOfDayToTimestamp(
+                                        deliveryTime, deliveryDate),
+                                    'deliveryDate': _dateTimeToTimestamp(
+                                        userDetails.deliveryDate),
+                                    'items': cartItemsData,
+                                  }
+                                ]),
+                              });
+                            } else {
+                              // If the document does not exist, create it and add the array of cart items
+                              await userOrdersCollection.doc(orderDate).set({
+                                'cartItems': [
+                                  {
+                                    'name': userDetails.name,
+                                    'phone': userDetails.phone,
+                                    'selectedStreet':
+                                        userDetails.selectedStreet,
+                                    'deliveryTime': _timeOfDayToTimestamp(
+                                        deliveryTime, deliveryDate),
+                                    'deliveryDate': _dateTimeToTimestamp(
+                                        userDetails.deliveryDate),
+                                    'items': cartItemsData,
+                                  }
+                                ],
+                              });
+                            }
+                          } else {
+                            // If the 'orders' collection does not exist, create it and add the document
+                            await userOrdersCollection.doc(orderDate).set({
+                              'cartItems': [
+                                {
+                                  'name': userDetails.name,
+                                  'phone': userDetails.phone,
+                                  'selectedStreet': userDetails.selectedStreet,
+                                  'deliveryTime': _timeOfDayToTimestamp(
+                                      deliveryTime, deliveryDate),
+                                  'deliveryDate': _dateTimeToTimestamp(
+                                      userDetails.deliveryDate),
+                                  'items': cartItemsData,
+                                }
+                              ],
+                            });
+                          }
+
+                          // Show a modal bottom sheet with the order details
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Container(
+                                padding: EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('Order Details',
+                                        style: TextStyle(fontSize: 18.0)),
+                                    SizedBox(height: 16.0),
+                                    // Display order details in the modal
+                                    Text('Name: ${userDetails.name}'),
+                                    Text('Phone: ${userDetails.phone}'),
+                                    Text(
+                                        'Selected Street: ${userDetails.selectedStreet}'),
+                                    Text(
+                                        'Delivery Time: ${userDetails.deliveryTime.format(context)}'),
+                                    Text(
+                                        'Delivery Date: ${DateFormat('dd/MM/yyyy').format(deliveryDate)}'),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.pushNamed(
+                                                  context, FinalOrder.id);
+                                            },
+                                            child: Text('Continue to Payment',
+                                                textAlign: TextAlign.center),
+                                          ),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text('Edit'),
+                                            style: ElevatedButton.styleFrom(
+                                                minimumSize: Size(200, 40)),
+                                          ),
+                                        ),
+                                        SizedBox(width: 15),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        } catch (e) {
+                          print('Error adding order: $e');
+                          // Show an error message if the order couldn't be added
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Error'),
+                                content: Text(
+                                    'Failed to place order. Please try again later.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
                       } else {
                         // Show a popup message that some details are incomplete
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text("Incomplete Details"),
+                              title: Text('Incomplete Details'),
                               content:
-                                  Text("Please fill in all required fields."),
+                                  Text('Please fill in all required fields.'),
                               actions: <Widget>[
                                 TextButton(
                                   onPressed: () {
                                     Navigator.of(context).pop();
+                                    print("check comple cliced");
                                   },
                                   child: Text('OK'),
                                 ),
@@ -442,8 +1172,90 @@ class _DeliState extends State<Deli> {
                         );
                       }
                     },
-                    child: Text('Check Completion'),
-                  ),
+                    child: Text('Check Completion',
+                        style: TextStyle(color: Colors.black)),
+                  )
+//סוף הקודם
+
+                  // ElevatedButton(
+                  //   onPressed: () async {
+                  //     if (isFormCompleted()) {
+                  //       userDetails = UserDetails(
+                  //         name: _Textname.text,
+                  //         phone: phone,
+                  //         //selectedTime: select,
+                  //         selectedStreet: searchController.text,
+                  //         deliveryTime: deliveryTime,
+                  //         deliveryDate: deliveryDate,
+                  //       );
+                  //       // Accessing the Firebase Firestore instance
+                  //       FirebaseFirestore firestore = FirebaseFirestore.instance;
+                  //
+                  //       showModalBottomSheet(
+                  //         context: context,
+                  //         builder: (BuildContext context) {
+                  //           return Container(
+                  //             //color: Colors.orange,
+                  //             color: Colors.white,
+                  //             padding: EdgeInsets.all(16.0),
+                  //             child: Column(
+                  //               crossAxisAlignment: CrossAxisAlignment.stretch,
+                  //               mainAxisSize: MainAxisSize.min,
+                  //               children: [
+                  //                 Text(
+                  //                   'Delivery Details',
+                  //                   style: TextStyle(fontSize: 18.0),
+                  //                 ),
+                  //                 SizedBox(height: 16.0),
+                  //                 // Display user details in the modal
+                  //                 Text('Name: ${userDetails.name}'),
+                  //                 Text('Phone: ${userDetails.phone}'),
+                  //
+                  //                 Text(
+                  //                     'Selected Street: ${userDetails.selectedStreet}'),
+                  //                 Text(
+                  //                     'Delivery Time: ${deliveryTime.format(context)}'),
+                  //                 Text(
+                  //                     'Delivery Date: ${DateFormat('dd/MM/yyyy').format(deliveryDate)}'),
+                  //
+                  //                 ElevatedButton(
+                  //                   onPressed: () {
+                  //                     Navigator.pushNamed(context, MapPage.id); // payment page there i need to add that if the pyment is pass it will takes me the map page there will be the order and the order will add to doc of user in fire base to see the history of his orders
+                  //                   },
+                  //                   child: Text('Continue to Payment'),
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //           );
+                  //         },
+                  //       );
+                  //     } else {
+                  //       // Show a popup message that some details are incomplete
+                  //       showDialog(
+                  //         context: context,
+                  //         builder: (BuildContext context) {
+                  //           return AlertDialog(
+                  //             title: Text("Incomplete Details"),
+                  //             content:
+                  //                 Text("Please fill in all required fields."),
+                  //             actions: <Widget>[
+                  //               TextButton(
+                  //                 onPressed: () {
+                  //                   Navigator.of(context).pop();
+                  //                 },
+                  //                 child: Text('OK'),
+                  //               ),
+                  //             ],
+                  //           );
+                  //         },
+                  //       );
+                  //     }
+                  //   },
+                  //   child: Text(
+                  //     'Check Completion',
+                  //     style: TextStyle(color: Colors.black),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -452,4 +1264,48 @@ class _DeliState extends State<Deli> {
       ),
     );
   }
+
+  // Timestamp _dateTimeToTimestamp(DateTime dateTime) {
+  //   return Timestamp.fromMillisecondsSinceEpoch(dateTime.millisecondsSinceEpoch);
+  // }
+  Timestamp _dateTimeToTimestamp(DateTime dateTime) {
+    // Format the DateTime object to a string in the desired format
+    String formattedDate = DateFormat('MMMM dd, yyyy').format(dateTime);
+
+    // Parse the formatted date string back to a DateTime object
+    DateTime parsedDate = DateFormat('MMMM dd, yyyy').parse(formattedDate);
+
+    // Convert the DateTime object to a Timestamp
+    return Timestamp.fromDate(parsedDate);
+  }
+
+// // Convert TimeOfDay to Timestamp
+//   Timestamp _timeOfDayToTimestamp(TimeOfDay timeOfDay) { //מקבלת Deliverytime
+//     DateTime now = DateTime.now(); //לוקחת את הזמן עכשיו
+//     DateTime dateTime = DateTime(now.year, now.month, now.day, timeOfDay.hour, timeOfDay.minute); //בונה אובייקט של תאריך בזמן אמת עם תאריך מדוייק ושעות
+//     return Timestamp.fromMillisecondsSinceEpoch(dateTime.millisecondsSinceEpoch);
+//   }
+
+  Timestamp _timeOfDayToTimestamp(TimeOfDay timeOfDay, DateTime dateTime) {
+    // Construct the combined DateTime object using the selected date and time
+    DateTime combinedDateTime = DateTime(
+      dateTime.year,
+      dateTime.month,
+      dateTime.day,
+      timeOfDay.hour,
+      timeOfDay.minute,
+    );
+    print("combinedDateTime: " + combinedDateTime.toString());
+    // Subtract 3 hours from combinedDateTime
+    combinedDateTime = combinedDateTime.subtract(Duration(hours: 3));
+    // Convert the combined DateTime object to a Timestamp
+    return Timestamp.fromDate(combinedDateTime);
+  }
+
+// Convert TimeOfDay to Timestamp using DateTime from _dateTimeToTimestamp
+//   Timestamp _timeOfDayToTimestamp(TimeOfDay timeOfDay, DateTime dateTime) {
+//     DateTime combinedDateTime = DateTime(dateTime.year, dateTime.month, dateTime.day, timeOfDay.hour, timeOfDay.minute);
+//    print(combinedDateTime.toString());
+//     return Timestamp.fromMillisecondsSinceEpoch(combinedDateTime.millisecondsSinceEpoch);
+//   }
 }

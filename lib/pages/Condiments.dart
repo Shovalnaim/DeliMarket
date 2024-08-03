@@ -6,13 +6,12 @@ import '../GroceryItem.dart';
 import '../components/cart.dart';
 import 'cart_page.dart';
 
-class Fruits extends StatelessWidget {
-  static const String id="fruits";
+class Condiments extends StatelessWidget {
+  static const String id = "condiments";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Stack(children: [
         Image.asset(
           'images/backgroundthree.jpg',
@@ -27,7 +26,7 @@ class Fruits extends StatelessWidget {
           child: AppBar(
             backgroundColor: Colors.transparent,
             title: Text(
-              "fruits Page",
+              "Condiments Page",
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
@@ -51,7 +50,7 @@ class Fruits extends StatelessWidget {
                 child: badges.Badge(
                   child: InkWell(
                     onTap: () {
-                      print("fish");
+                      print("תבלינים");
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => CartPage()),
@@ -70,50 +69,47 @@ class Fruits extends StatelessWidget {
           ),
         ),
         SafeArea(
-          //child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(top: 20.0),
-            child: Column(
-              children: [
-                SizedBox(height: 50,),
-                Expanded(
-                  child: Consumer<Cart>(builder: (context, value, child) {
-                    return Container(
-                      //color: Color(0XFFFA3B02),
-                      child: GridView.builder(
-                        itemCount: value.fruits.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          crossAxisCount: 2,
-                          childAspectRatio: 1 / 1.2,
-                        ),
-                        itemBuilder: (context, index) {
-                          return GroceryItemTile(
-                            name: value.fruits[index][0],
-                            unit: value.fruits[index][1],
-                            price: value.fruits[index][2],
-                            image: value.fruits[index][3],
-                            listName: value.fruits,
-                            onPressed: () {
-                              Provider.of<Cart>(context, listen: false)
-                                  .addItemToCart(
+            child: Padding(
+          padding: EdgeInsets.only(top: 20.0),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 60,
+              ),
+              Expanded(
+                child: Consumer<Cart>(builder: (context, value, child) {
+                  return GridView.builder(
+                    itemCount: value.condiments.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      crossAxisCount: 2,
+                      childAspectRatio: 1 / 1.2,
+                    ),
+                    itemBuilder: (context, index) {
+                      return GroceryItemTile(
+                        name: value.condiments[index][0],
+                        unit: value.condiments[index][1],
+                        price: value.condiments[index][2],
+                        image: value.condiments[index][3],
+                        listName: value.condiments,
+                        onPressed: () {
+                          Provider.of<Cart>(context, listen: false)
+                              .addItemToCart(
                                   index,
                                   Provider.of<Cart>(context, listen: false)
-                                      .fruits);
-                            },
-
-                          );
+                                      .condiments);
                         },
-                      ),
-                    );
-                  }),
-                ),
-              ],
-            ),
-          ),
-        ),])
 
+                      );
+                    },
+                  );
+                }),
+              ),
+            ],
+          ),
+        )),
+      ]),
     );
   }
 }

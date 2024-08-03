@@ -11,6 +11,7 @@ class GroceryItemTile extends StatefulWidget {
   final List<List<dynamic>> listName; //List representing the item details
   void Function()? onPressed; // Callback function when "Add To Cart" is pressed
 
+
   GroceryItemTile({
     Key? key,
     required this.name,
@@ -19,6 +20,7 @@ class GroceryItemTile extends StatefulWidget {
     required this.image,
     required this.listName,
     required this.onPressed,
+
   });
 
   @override
@@ -43,12 +45,12 @@ class _GroceryItemTileState extends State<GroceryItemTile> {
       // Update the quantity in the cart using Provider
       Provider.of<Cart>(context, listen: false)
           .updateUnit(widget.name, widget.unit,widget.listName);
+
     });
   }
   @override
   Widget build(BuildContext context) {
-    return
-        Container(
+    return Container(
           decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
@@ -60,9 +62,13 @@ class _GroceryItemTileState extends State<GroceryItemTile> {
               ]),
           child: Column(
             children: [
-              Image.asset(
-                widget.image,
+              Container(
+                padding: EdgeInsets.all(10),
                 height: 100,
+                child: Image.asset(
+                  widget.image,
+                  fit: BoxFit.cover,
+                ),
               ),
               Text(widget.name),
               SizedBox(
@@ -96,6 +102,7 @@ class _GroceryItemTileState extends State<GroceryItemTile> {
                     margin: EdgeInsets.symmetric(horizontal: 5),
                     child: Text(
                       "${widget.unit}",
+
                       style: TextStyle(
                         color: Colors.brown,
                         fontSize: 20,
